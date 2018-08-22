@@ -85,24 +85,30 @@
             <version>1.2.49</version>
         </dependency>
 
-        <!-- 指定 scaLikeJdbc 的版本 -->
         <dependency>
             <groupId>org.scalikejdbc</groupId>
             <artifactId>scalikejdbc_2.11</artifactId>
             <version>2.5.0</version>
         </dependency>
-        <!-- 添加 ScalalikeJdbc 依赖 -->
+
         <dependency>
             <groupId>org.scalikejdbc</groupId>
             <artifactId>scalikejdbc-core_2.11</artifactId>
             <version>2.5.0</version>
         </dependency>
-        <!-- 添加 ScalalikeJdbc-config 依赖 -->
+
         <dependency>
             <groupId>org.scalikejdbc</groupId>
             <artifactId>scalikejdbc-config_2.11</artifactId>
             <version>2.5.0</version>
         </dependency>
+        <!-- 添加 mysql 依赖 -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.38</version>
+        </dependency>
+
         <!-- 添加 typesafe 依赖 -->
         <dependency>
             <groupId>com.typesafe</groupId>
