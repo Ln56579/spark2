@@ -1,0 +1,100 @@
+package com.huoshan.spark.streaming.cms
+
+import com.typesafe.config.ConfigFactory
+import kafka.common.TopicAndPartition
+import kafka.message.MessageAndMetadata
+import kafka.serializer.StringDecoder
+import org.apache.spark.SparkConf
+import org.apache.spark.streaming.dstream.InputDStream
+import org.apache.spark.streaming.kafka.{KafkaCluster, KafkaUtils}
+import org.apache.spark.streaming.{Duration, StreamingContext}
+import scalikejdbc._
+import scalikejdbc.config.DBs
+
+/**
+  * Description : Streaming  cms
+  * Created by ln on : 2018/8/17 17:04
+  * Author : nan
+  */
+object RTMonitor {
+  def main(args: Array[String]): Unit = {
+
+    val config = ConfigFactory.load("application")
+
+    val topicSet = config.getString("kafka.topics").split(",").toSet
+    val brokerList = config.getString("kafka.brokerList")
+    val group = config.getString("kafka.group")
+
+    println("-----------------"+topicSet)
+    println("-----------------"+brokerList)
+    println("-----------------"+group)
+
+    //创建kafka相关参数
+    val kafkaParams = Map(
+      "metadata.broker.list" -> brokerList,
+      "group.id" -> group,
+      "auto.offset.reset" -> "smallest"
+    )
+
+    //SparkStreaming
+
+
+    val conf = new SparkConf().setAppName("RTMonitor").setMaster("local[4]")
+
+    val ssc = new StreamingContext(conf, Duration(5000))
+
+    //var fromOffsets: Map[TopicAndPartition, Long] = Map()
+
+    //从mysql里面找
+    DBs.setup()
+
+    var tmpFromOffsets: Seq[(TopicAndPartition, Long)] = DB readOnly{ implicit session =>
+      sql"select * from stream_offset_24".map(rs => {
+        (TopicAndPartition(rs.string("topic"),rs.int("partition")),rs.long("offset"))
+      }).list().apply()
+    }
+    print(tmpFromOffsets)
+    val fromOffsets: Map[TopicAndPartition, Long] = tmpFromOffsets.toMap
+
+    //从kafka拉取数据     ---      之前读取mysql中的偏移量
+    var stream: InputDStream[(String, String)] = if (fromOffsets.size==0) {//假设程序第一次启动
+      KafkaUtils.createDirectStream[String, String, StringDecoder, StringDecoder](ssc, kafkaParams, topicSet)
+    }else{//程序非第一次启动  从mysql中读取偏移量
+    var checedOffset = Map[TopicAndPartition, Long]()
+      //校验偏移量
+      val kafkaCluster = new KafkaCluster(kafkaParams)  //连接kafka集群连接对象
+      val earliesOff1sets = kafkaCluster.getEarliestLeaderOffsets(fromOffsets.keySet)
+      if (earliesOff1sets.isRight) {
+        val topAndPartitionOffSet = earliesOff1sets.right.get
+        //开始对比
+        checedOffset = fromOffsets.map(owner =>{
+          val clusterEarliesOffset = topAndPartitionOffSet.get(owner._1).get.offset
+          if (owner._2 >= clusterEarliesOffset){
+            owner
+          }else {
+            (owner._1,clusterEarliesOffset)
+          }
+        })
+
+
+      }
+      //kafka拉取的数据     封装成了 messageHandler    (原数据  带描述数据  比如说  在那个分区)
+      val messageHandler = (mmd: MessageAndMetadata[String, String]) => (mmd.key(), mmd.message())
+
+      KafkaUtils.createDirectStream[String,String,StringDecoder,StringDecoder,(String,String)](ssc,kafkaParams,fromOffsets,messageHandler)
+    }
+    //处理数据 根据需求
+
+    stream.foreachRDD(rdd => {
+      println(rdd)
+    })
+
+
+
+    //结果存入到redis     ---     将偏移量存入到mysql
+
+    //启动程序    ---    等待程序终止
+    ssc.start()
+    ssc.awaitTermination()
+  }
+}
