@@ -8,7 +8,7 @@ object combineByKey2 {
   def main(args: Array[String]): Unit = {
     //构建sc
     val conf = new SparkConf()
-      .setAppName("combineByKey")
+      .setAppName(s"${this.getClass.getSimpleName}")
       .setMaster("local[4]")
     //RDD的序列化   worker 和 worker直接的通信
     conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")

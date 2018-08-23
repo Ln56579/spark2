@@ -27,7 +27,7 @@ object UserTagesMerge {
       )
       sys.exit()
     }
-    val Array( inputPath ,outputPath ) = args
+    val Array( inputPath  ) = args
     //创建spark配置
     val conf = new SparkConf().setAppName(s"${this.getClass.getSimpleName}")
       .setMaster("local[*]")
