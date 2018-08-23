@@ -48,7 +48,7 @@ object RTMonitor {
 
     // 3. TODO 从mysql里面找
     DBs.setup()
-
+    //TODO 这里存在一个BUG 当更换主题时需要清除表中数据
     var tmpFromOffsets = DB readOnly { implicit session =>
       sql"select * from stream_offset_24 where groupid = ?".bind(group).map(rs => {
         (TopicAndPartition(rs.string("topic"), rs.int("partition")), rs.long("offset"))
