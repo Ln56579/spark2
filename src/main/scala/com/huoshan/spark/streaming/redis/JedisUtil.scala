@@ -9,7 +9,7 @@ import redis.clients.jedis.{Jedis, JedisPool, JedisPoolConfig}
   */
 object JedisUtil {
   private val config = new JedisPoolConfig
-  private val jedisPool = new JedisPool(config,"192.168.0.239",6379,5000,null,7)
+  private val jedisPool = new JedisPool(config,"47.106.182.143",6379,5000,null,7)
 
   def getJedis () : Jedis = {
     jedisPool.getResource

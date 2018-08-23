@@ -9,6 +9,8 @@ import org.apache.spark.{SparkConf, SparkContext}
   *                       intersection  交集                        初始值  ||abc|def 计算三次
   *                       aggregate  小分区聚合   在全局聚合    aggregate("")(Math.max(_,_),(_+_))
   *                       aggregateByKey  在小分区  内用一次   俩个分区都出现  就会是200 一个分区出现就是100
+  *                       filterByRange   根据条件过滤
+  *
   * Created by ln on 2018/7/20
   * Author : ln56
   */
