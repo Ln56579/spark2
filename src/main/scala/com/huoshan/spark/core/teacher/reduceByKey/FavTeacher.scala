@@ -9,11 +9,11 @@ object FavTeacher {
     if (args.length!=1) {
       println(
         """
-          |com.huoshan.spark.graphX.UserTagesMerge
+          |com.huoshan.reduceByKey.FavTeacher
           |
           |Parameter Expect:
           |
-          |      inputPath
+          |      inputPath        D:\SparkTest\InputPath\teacher.log
           |
         """.stripMargin
       )
