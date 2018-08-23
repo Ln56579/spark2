@@ -11,6 +11,8 @@ import org.apache.spark.{SparkConf, SparkContext}
   *                       aggregateByKey  在小分区  内用一次   俩个分区都出现  就会是200 一个分区出现就是100
   *                       filterByRange   根据条件过滤
   *
+  *                       distinct ( 去重 )聚合   属于suffer
+  *
   *                       foreachPartition 一下子拿出来一个分区
   *                       mapValues 一下拿出一个迭代器
   * Created by ln on 2018/7/20
