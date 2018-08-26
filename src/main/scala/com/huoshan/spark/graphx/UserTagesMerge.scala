@@ -35,6 +35,10 @@ object UserTagesMerge {
     conf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     //Spark的入口
     val sc = new SparkContext(conf)
+    //设置 日志级别
+    sc.setLogLevel(logLevel = "WARN")
+    //分离sc初始化   和    正式执行代码
+    println("\n\n"+("--"*15)+"  sc init success  "+("--"*15)+"\n\n")
 
     val data = sc.textFile(inputPath).map(_.split("\t", -1))
 
@@ -47,7 +51,7 @@ object UserTagesMerge {
           val kv = kvs.split(":")
           (kv(0), kv(1).toInt)
         }).toList
-        println(userTages)
+        //println(userTages)
 
         //TODO 构建点   第一个携带  同一行不携带
         userName.map(name => {
