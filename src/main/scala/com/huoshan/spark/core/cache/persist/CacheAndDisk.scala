@@ -14,7 +14,7 @@ object CacheAndDisk {
 
     val conf = new SparkConf().setAppName("faTeacher").setMaster("local[4]")
     val sc = new SparkContext(conf)
-
+    sc.setLogLevel("ERROR")
     val lines: RDD[String] = sc.textFile(args(0))
     val subjectTeacher = lines.map(line => {
 
